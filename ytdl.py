@@ -1,105 +1,129 @@
-from logging import INFO
+# -*- coding: utf-8 -*-
+
+import requests, os, validators
+import youtube_dl
 from pyrogram import Client, filters
-from pytube import YouTube, exceptions
-import os
-import requests
-import logging
-import sys
-from autologging import logged, traced
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-# Enable logging
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=INFO)
-logger = logging.getLogger(__name__)
-
-bot_token = "1521937075:AAFzUp-yZEGpbrRxwlm3BMXFFY15hfV5oIw"  # BOT Token
-api_id = 1519291
-api_hash = "ff3b1871585d32a794465da51b077361"
-
-app = Client("ytdl", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
-with app:
-    botname = app.get_me().username
+api_id = 123456789  # int of api id get from my.telegram.org
+api_hash = " Your Api Hash Here "  # str of api hash get from my.telegram.org
+token = ' Your Bot Token here '  # str of token get from BotFather
+app = Client("Downloader", api_id, api_hash,
+             bot_token=token)  # You Can Change The Session Name by Replace "Downlaoder" to your session name
 
 
-@traced
-@logged
-@app.on_message(filters.command(["ytdl", f"ytdl@{botname}"], prefixes="/") & ~filters.edited)
-def ytdl(client, message):
-    text = f"Ciao {str(message.from_user.first_name)}, questo plugin del bot scritto da @doggy_cheems serve a scaricare video da youtube" + \
-        "Scrivi /helpyt per sapere come funziono"
-    app.send_message(chat_id=message.chat.id, text=text)
+def download(url, quality):
+    if quality == "1":
+        ydl_opts_start = {
+            'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
+            # need ffmpeg if you don't have ffmpeg, Change it to "best" or install ffmpeg :)
+            'outtmpl': f'localhost/%(title)s.%(ext)s',
+            'no_warnings': True,
+            'ignoreerrors': True,
+            'noplaylist': True,
+            'http_chunk_size': 2097152,
+            'writethumbnail': True
+
+        }
+        with youtube_dl.YoutubeDL(ydl_opts_start) as ydl:
+            result = ydl.extract_info("{}".format(url))
+            title = ydl.prepare_filename(result)
+            ydl.download([url])
+        return f'{title}'
+    if quality == "2":
+        ydl_opts_start = {
+            'format': 'best[height=480]',
+            'outtmpl': f'localhost/%(title)s.%(ext)s',
+            'no_warnings': False,
+            'logtostderr': False,
+            'ignoreerrors': False,
+            'noplaylist': True,
+            'http_chunk_size': 2097152,
+            'writethumbnail': True
+        }
+        with youtube_dl.YoutubeDL(ydl_opts_start) as ydl:
+            result = ydl.extract_info("{}".format(url))
+            title = ydl.prepare_filename(result)
+            ydl.download([url])
+        return f'{title}'
 
 
-@traced
-@logged
-@app.on_message(filters.command(["helpyt", f"helpyt@{botname}"], prefixes="/") & ~filters.edited)
-def help(client, message):
-    text = 'Puoi scaricare video e audio usando:\n' + \
-        '/video link\n' + \
-        '/audio link'
-    app.send_message(chat_id=message.chat.id, text=text)
+# here you can Edit Start message
+@app.on_message(filters.command('ytdl', '/'))
+def start(c, m):  # c Mean Client | m Mean Message
+    m.reply_text(
+        'Ciao, sono un plugin scritto da @doggy_cheems. \n Mandami un URL e io lo scaricherò')  # Edit it and add your Bot ID :)
 
 
-@traced
-@logged
-@app.on_message(filters.command(["video", f"video@{botname}"], prefixes="/") & ~filters.edited)
-def video_dl(client, message):
-    chat_id = message.chat.id
-    link = message.text.split(maxsplit=1)[1]
-    try:
-        yt = YouTube(link)
-        video = yt.streams.get_highest_resolution().download('res')
-        caption = yt.title
-        with open('a.jpg', 'wb') as t:
-            t.write(requests.get(yt.thumbnail_url).content)
-        thumb = open('a.jpg', 'rb')
-        app.send_chat_action(chat_id, "upload_video")
-        client.send_video(chat_id=chat_id, video=video, caption=caption,
-                          thumb=thumb, duration=yt.length)
-        if os.path.exists(video):
-            os.remove(video)
-        if os.path.exists('a.jpg'):
-            os.remove('a.jpg')
+@app.on_message(filters.regex(
+    r"https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)"))
+def webpage(c, m):  # c Mean Client | m Mean Message
+    url1 = m.text
+    if validators.url(url1):
+        sample_url = "https://da.gd/s?url={}".format(url1)
+        url = requests.get(sample_url).text
+        chat_id = m.chat.id
+        keys = c.send_message(
+            chat_id,
+            f"Ok!!🙄\n {url1} è l'url😊 \n\nSeleziona la qualità :\n💡Premi HD per scaricarlo alla miglior qualita possibile😁 ",
+            reply_markup=InlineKeyboardMarkup(
+                [
+                    [
+                        InlineKeyboardButton(
+                            "HD",
+                            callback_data="%s and 1" % url
+                        ),
 
-    except exceptions.RegexMatchError:
-        message.reply_text("URL errato.")
-    except exceptions.LiveStreamError:
-        message.reply_text("Impossibile scaricare live.")
-    except exceptions.VideoUnavailable:
-        message.reply_text("Video non disponibile.")
-    except exceptions.HTMLParseError:
-        message.reply_text("Impossibile scaricare il contenuto.")
+                    ],
+                    [
+                        InlineKeyboardButton(
+                            "480p",
+                            callback_data="%s and 2" % url
+                        ),
+
+                    ]
+                ]
+            ), disable_web_page_preview=True
+        )
+    else:
+        c.send_message(m.chat.id, "Manda un url corretto per favore")
 
 
-@traced
-@logged
-@app.on_message(filters.command(["audio", f"audio@{botname}"], prefixes="/") & ~filters.edited)
-def audio_dl(client, message):
-    chat_id = message.chat.id
-    link = message.text.split('audio', maxsplit=1)[1]
-    try:
-        yt = YouTube(link)
-        audio = yt.streams.get_audio_only().download('res')
-        title = yt.title
-        app.send_chat_action(chat_id, "upload_audio")
-        with open('a.jpg', 'wb') as t:
-            t.write(requests.get(yt.thumbnail_url).content)
-        thumb = open('a.jpg', 'rb')
-        client.send_audio(chat_id=chat_id, audio=audio, title=title,
-                          thumb=thumb, performer=yt.author, duration=yt.length)
-        if os.path.exists(audio):
-            os.remove(audio)
-        if os.path.exists('a.jpg'):
-            os.remove('a.jpg')
+@app.on_callback_query()
+def download(c, q):  # c Mean Client | q Mean Query
+    global check_current
+    check_current = 0
 
-    except exceptions.RegexMatchError:
-        message.reply_text("URL errato.")
-    except exceptions.LiveStreamError:
-        message.reply_text("Impossibile scaricare live.")
-    except exceptions.VideoUnavailable:
-        message.reply_text("Video non disponibile.")
-    except exceptions.HTMLParseError:
-        message.reply_text("Impossibile scaricare il contenuto.")
+    def progress(current, total):  # Thanks to my dear friend Hassan Hoot for Progress Bar :)
+        global check_current
+        if ((current // 1024 // 1024) % 50) == 0:
+            if check_current != (current // 1024 // 1024):
+                check_current = (current // 1024 // 1024)
+                upmsg.edit(f"{current // 1024 // 1024}MB su {total // 1024 // 1024}MB Scaricati 😁")
+        elif (current // 1024 // 1024) == (total // 1024 // 1024):
+            upmsg.delete()
+
+    chat_id = q.message.chat.id
+    data = q.data
+    url, quaitly = data.split(" e ")
+    dlmsg = c.send_message(chat_id, 'Hmm!😋 Sto scaricando...')
+    path = downloada(url, quaitly)
+    upmsg = c.send_message(chat_id, 'Sto indiando il video')
+    dlmsg.delete()
+    thumb = path.replace('.mp4', ".jpg", -1)
+    if os.path.isfile(thumb):
+        thumb = open(thumb, "rb")
+        path = open(path, 'rb')
+        c.send_photo(chat_id, thumb,
+                     caption='Scaricato tramite @doggycheems_bot')  # Edit it and add your Bot ID :)
+        c.send_video(chat_id, path, caption='Scaricato da @doggycheems_bot',
+                     file_name="iLoader", supports_streaming=True, progress=progress)  # Edit it and add your Bot ID :)
+        upmsg.delete()
+    else:
+        path = open(path, 'rb')
+        c.send_video(chat_id, path, caption='Scaricato da @doggycheems_bot',
+                     file_name="file", supports_streaming=True, progress=progress)
+        upmsg.delete()
 
 
 app.run()
