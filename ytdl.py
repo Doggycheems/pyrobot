@@ -47,8 +47,8 @@ def downloada(url, quality):
         return f'{title}'
 
 # here you can Edit Start message
-@app.on_message(filters.command('start', '/'))
-def start(c, m): # c Mean Client | m Mean Message
+@app.on_message(filters.command('ytdl', '/'))
+def ytdl(c, m): # c Mean Client | m Mean Message
       m.reply_text('Ciao, questo è un plugin scritto da @doggy_cheems\n Manda il link di un video e proverò a scaricarlo') #Edit it and add your Bot ID :)
 
 
