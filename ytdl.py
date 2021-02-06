@@ -65,7 +65,7 @@ def webpage(c, m):  # c Mean Client | m Mean Message
         chat_id = m.chat.id
         keys = c.send_message(
             chat_id,
-            f"Ok!!🙄\n {url1} è l'url😊 \n\nSeleziona la qualità :\n💡Premi HD per scaricarlo alla miglior qualita possibile😁 ",
+            f"Ok\n {url1} è l'url😊 \n\nSeleziona la qualità :\n💡Premi HD per scaricarlo alla miglior qualita possibile😁 ",
             reply_markup=InlineKeyboardMarkup(
                 [
                     [
@@ -105,10 +105,10 @@ def download(c, q):  # c Mean Client | q Mean Query
 
     chat_id = q.message.chat.id
     data = q.data
-    url, quaitly = data.split(" e ")
-    dlmsg = c.send_message(chat_id, 'Hmm!😋 Sto scaricando...')
-    path = downloada(url, quaitly)
-    upmsg = c.send_message(chat_id, 'Sto indiando il video')
+    url, quaitly = data.split("and")
+    dlmsg = c.send_message(chat_id, 'Hmm! Sto scaricando...')
+    path = download(url, quality)
+    upmsg = c.send_message(chat_id, 'Sto inviando il video')
     dlmsg.delete()
     thumb = path.replace('.mp4', ".jpg", -1)
     if os.path.isfile(thumb):
@@ -117,7 +117,7 @@ def download(c, q):  # c Mean Client | q Mean Query
         c.send_photo(chat_id, thumb,
                      caption='Scaricato tramite @doggycheems_bot')  # Edit it and add your Bot ID :)
         c.send_video(chat_id, path, caption='Scaricato da @doggycheems_bot',
-                     file_name="iLoader", supports_streaming=True, progress=progress)  # Edit it and add your Bot ID :)
+                     file_name="file", supports_streaming=True, progress=progress)  # Edit it and add your Bot ID :)
         upmsg.delete()
     else:
         path = open(path, 'rb')
