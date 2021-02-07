@@ -14,10 +14,16 @@ from youtube_dl.utils import (
     XAttrMetadataError,
 )
 
-from DaisyX.events import register as saitama
+
+api_id = 12345
+api_hash = '0123456789abcdef0123456789abcdef'
+bot_token = 
+
+client = TelegramClient('some_name', api_id, api_hash, bot_token)
 
 
-@saitama(pattern="^/yt(audio|video) (.*)")
+
+@client(pattern="^/yt(audio|video) (.*)")
 async def download_video(v_url):
     """ For .ytdl command, download media from YouTube and many other sites. """
     url = v_url.pattern_match.group(2)
