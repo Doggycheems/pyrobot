@@ -7,7 +7,7 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 api_id = 1519291  # int of api id get from my.telegram.org
 api_hash = "ff3b1871585d32a794465da51b077361"  # str of api hash get from my.telegram.org
-token = "1548444905:AAFF-p59GDh2PFezqCp8K1T1iZRlwkso3NE"  # str of token get from BotFather
+token = "1521937075:AAFzUp-yZEGpbrRxwlm3BMXFFY15hfV5oIw"  # str of token get from BotFather
 app = Client("Downlaoder", api_id, api_hash,
              bot_token=token)  # You Can Change The Session Name by Replace "Downlaoder" to your session name
 
@@ -24,7 +24,7 @@ def downloada(url, quality):
             "postprocessors": [
                 {"key": "FFmpegVideoConvertor", "preferedformat": "mp4"}
             ],
-            "outtmpl": "data/data/com.termux/files/home/pyrobot/%(title)s.%(ext)s",
+            "outtmpl": "data/data/com.termux/files/home/pyrobot/videos/%(title)s.%(ext)s",
             "logtostderr": True,
             "quiet": False,
         }
