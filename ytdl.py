@@ -16,7 +16,7 @@ def downloada(url, quality):
     if quality == "1":
         ydl_opts_start = {
             'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best', # need ffmpeg if you don't have ffmpeg, Change it to "best" or install ffmpeg :)
-            'outtmpl': f'/data/data/com.termux/files/home/pyrobot/%(title)s.%(ext)s',
+            'outtmpl': f'/data/data/com.termux/files/home/pyrobot/%(id)s.mp4',
             'no_warnings': True,
             'ignoreerrors': True,
             'noplaylist': True,
