@@ -32,7 +32,7 @@ def downloada(url, quality):
     if quality == "2":
         ydl_opts_start = {
             'format': 'best[height=480]',
-            'outtmpl': f'/data/data/com.termux/files/home/pyrobot/%(title)s.%(ext)s',
+            'outtmpl': f'/data/data/com.termux/files/home/pyrobot/%(id)s.mp4',
             'no_warnings': False,
             'logtostderr': False,
             'ignoreerrors': False,
